@@ -1,3 +1,5 @@
+from numba import jit
+
 import math
 import time
 from random import randint
@@ -20,7 +22,7 @@ def get_coords_from_file(filename):
 
 
 coords = get_coords_from_file("mona_1000.txt")
-old_i_dist, old_k_dist = 0, 0
+# old_i_dist, old_k_dist = 0, 0
 print(coords)
 
 two_opt_swap = lambda r, i, k: r[0:i] + r[k:-len(r) + i - 1:-1] + r[k + 1:len(r)]
@@ -47,7 +49,7 @@ def get_i_k_dists(i, k, route):
     return new_i_dist, new_k_dist
 
 
-def calculate_total_distance(route, i=None, k=None, old_dist=None):
+def calculate_total_distance(route, i=None, k=None, old_dist=None, old_i_dist=0, old_k_dist=0):
     if i and k and old_dist:
         return old_dist - old_i_dist - old_k_dist + sum(get_i_k_dists(i, k, route))
     else:
@@ -57,8 +59,8 @@ def calculate_total_distance(route, i=None, k=None, old_dist=None):
     return res
 
 
+@jit
 def two_opt(route):
-    global old_i_dist, old_k_dist
     existing_route = route
     current_dist = calculate_total_distance(route)
     changed = True
@@ -69,7 +71,7 @@ def two_opt(route):
                 old_i_dist, old_k_dist = get_i_k_dists(i, k, existing_route)
 
                 new_route = two_opt_swap(existing_route, i, k)
-                new_dist = calculate_total_distance(new_route, i, k, current_dist)
+                new_dist = calculate_total_distance(new_route, i, k, current_dist, old_i_dist, old_k_dist)
 
                 if new_dist < current_dist:
                     existing_route = new_route
@@ -78,6 +80,7 @@ def two_opt(route):
     return existing_route, current_dist
 
 
+@jit
 def four_opt(route):
     rand_kek = lambda: randint(0, len(route) - 1) // 4
     x = rand_kek()
@@ -86,6 +89,7 @@ def four_opt(route):
     return route[:x] + route[z:] + route[y:z] + route[x:y]
 
 
+@jit
 def greedy(node=1):
     route_best = []
     len_best = float('inf')
@@ -120,13 +124,15 @@ def local_search(start_route):
     return two_opt(start_route)
 
 
+@jit
 def integrated_local_search(node):
     route, _ = greedy(node)
     print(_)
     route, min_distance = local_search(route)
     print("Distance after 2-Opt Approach:", min_distance)
     print(route, len(route))
-    for i in tqdm(range(100)):
+    for i in range(100):
+        print(i, "off", 100)
         new_route = four_opt(route)
         new_route, new_distance = local_search(new_route)
         if new_distance < min_distance:
@@ -135,6 +141,7 @@ def integrated_local_search(node):
     print("Distance after 4-Opt Approach:", min_distance)
     print(route, len(route))
     return route
+
 
 integrated_local_search(2)
 
