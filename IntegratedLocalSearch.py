@@ -61,16 +61,20 @@ def two_opt(route):
     global old_i_dist, old_k_dist
     existing_route = route
     current_dist = calculate_total_distance(route)
-    for i in range(len(existing_route)):
-        for k in range(i + 1, len(existing_route)):
-            old_i_dist, old_k_dist = get_i_k_dists(i, k, existing_route)
+    changed = True
+    while changed:
+        changed = False
+        for i in range(len(existing_route)):
+            for k in range(i + 1, len(existing_route)):
+                old_i_dist, old_k_dist = get_i_k_dists(i, k, existing_route)
 
-            new_route = two_opt_swap(existing_route, i, k)
-            new_dist = calculate_total_distance(new_route, i, k, current_dist)
+                new_route = two_opt_swap(existing_route, i, k)
+                new_dist = calculate_total_distance(new_route, i, k, current_dist)
 
-            if new_dist < current_dist:
-                existing_route = new_route
-                current_dist = new_dist
+                if new_dist < current_dist:
+                    existing_route = new_route
+                    current_dist = new_dist
+                    changed = True
     return existing_route, current_dist
 
 
@@ -116,8 +120,8 @@ def local_search(start_route):
     return two_opt(start_route)
 
 
-def integrated_local_search():
-    route, _ = greedy()
+def integrated_local_search(node):
+    route, _ = greedy(node)
     print(_)
     route, min_distance = local_search(route)
     print("Distance after 2-Opt Approach:", min_distance)
@@ -133,6 +137,6 @@ def integrated_local_search():
     return route
 
 
-s_t = time.time()
-integrated_local_search()
-print(time.time() - s_t)
+# s_t = time.time()
+# integrated_local_search()
+# print(time.time() - s_t)
