@@ -82,12 +82,12 @@ def four_opt(route):
     return route[:x] + route[z:] + route[y:z] + route[x:y]
 
 
-def greedy():
+def greedy(node=1):
     route_best = []
     len_best = float('inf')
     # for iter_index, iter in tqdm(coords.items()):
-    route = [1]
-    new_city_index, new_city_coords, distance = make_closer(coords[1], route)
+    route = [node]
+    new_city_index, new_city_coords, distance = make_closer(coords[node], route)
     len_route = distance
     route.append(new_city_index)
     while len(route) < len(coords):
