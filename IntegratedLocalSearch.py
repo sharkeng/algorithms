@@ -133,7 +133,7 @@ def integrated_local_search(node):
             min_distance = new_distance
             route = new_route
     print("Distance after 4-Opt Approach:", min_distance)
-    print(route, len(route))
+    # print(route, len(route))
     return route
 
 x = integrated_local_search(1)
