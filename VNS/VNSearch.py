@@ -1,4 +1,4 @@
-def shaking(factory, count_mashine, count_part,  iter, max_count_clasters):
+def create_first_claster(factory, count_mashine, count_part,  iter, max_count_clasters):
     clasters=list()
     left_machine_edge=0
     left_part_edge=0
@@ -20,7 +20,20 @@ def shaking(factory, count_mashine, count_part,  iter, max_count_clasters):
         clasters.append(claster)
     return clasters
 
-def local_searh(clasters):
+
+def divide_clusters():
+    pass
+
+
+def merge_clusters():
+    pass
+
+
+def swap_machines():
+   pass
+
+
+def swap_parts():
     pass
 
 
@@ -42,8 +55,8 @@ if __name__ == "__main__":
         "dataset/#1 - King and Nakornchai(1982)[Figure-1a] ")
     max_count_clasters = min(count_machine, count_part)
     print(factory)
-    for i in range(2,max_count_clasters+1):
-        clasters=shaking(factory, count_machine, count_part, i, max_count_clasters)
+    for count_clasters in range(2,max_count_clasters+1):
+        clasters=create_first_claster(factory, count_machine, count_part, count_clasters, max_count_clasters)
         print(clasters)
 
 # [[2, 4, 5, 6], [1, 3], [1, 3, 7], [2, 4, 6], [1, 7]]
