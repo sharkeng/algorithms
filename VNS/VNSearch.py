@@ -59,68 +59,66 @@ def merge_clusters():
     pass
 
 
-def calc_swap_machines(clusters, part_in_clusters, clusters_in_machine, machine_number, cluster_number, n1_in, n0_in, n1):
+def calc_swap_machines(clusters, part_in_clusters, clusters_in_machine, machine_number, cluster_number, n1_in, n0_in,
+                       n1):
     machine_belonging = clusters_in_machine[machine_number]
-
-    if machine_belonging == cluster_number:
-        return
-    if len(machines_in_clusters[machine_belonging]) == 1:
-        return
-
     len_old_machine_in_old_cluster = len(part_in_clusters[machine_belonging])
     old_n1_in = len(clusters[machine_belonging][machine_number])
     old_n0_in = len_old_machine_in_old_cluster - old_n1_in
     len_machine_in_cluster = len(part_in_clusters[cluster_number])
+    parts = list()
+    for part in factory[machine_number]:
+        if part in part_in_clusters[cluster_number]:
+            parts.append(part)
+    new_n1_in = len(parts)
+    new_n0_in = len_machine_in_cluster - new_n1_in
+    new_value, new_n1_in, new_n0_in = get_new_value(old_n1_in, old_n0_in, new_n1_in, new_n0_in, n1_in, n0_in, n1)
 
-    new_n1_in = len(clusters[cluster_number][machine_number])
-    new_n0_in = len_machine_in_cluster - n1_in
-    new_value, n1_in, n0_in = get_new_value(old_n1_in, old_n0_in, new_n1_in, new_n0_in, n1_in, n0_in, n1)
-
-    return new_value, n1_in, n0_in
-
-
-# def swap_machines(factory, clusters, machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part,
-#                   machine_number, cluster_number, full_n1_in, full_n0_in, full_n1, old_value):
-#     old_factory, old_clusters, old_machines_in_clusters, old_part_in_clusters, old_clusters_in_machine, old_clusters_in_part = factory, clusters, machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part
-#     olf_full_n1_in, old_full_n0_in = full_n1_in, full_n0_in
-#     print("OLD", old_clusters)
-#     machine_belonging = clusters_in_machine[machine_number]
-#     if (machine_belonging == cluster_number):
-#         # print(("OH Shit this is current cluster"))
-#         return old_factory, old_clusters, old_machines_in_clusters, old_part_in_clusters, old_clusters_in_machine, old_clusters_in_part, olf_full_n1_in, old_full_n0_in, old_value, machine_number, cluster_number
-#     if (len(machines_in_clusters[machine_belonging]) == 1):
-#         # print("Null CLasters")
-#         return old_factory, old_clusters, old_machines_in_clusters, old_part_in_clusters, old_clusters_in_machine, old_clusters_in_part, olf_full_n1_in, old_full_n0_in, old_value, machine_number, cluster_number
-#     len_old_machine_in_old_cluster = len(part_in_clusters[machine_belonging])
-#     old_n1_in = len(clusters[machine_belonging].pop(machine_number))
-#     old_n0_in = len_old_machine_in_old_cluster - old_n1_in
-#     machines_in_clusters[cluster_number].append(machine_number)
-#     machines_in_clusters[machine_belonging].remove(machine_number)
-#     clusters_in_machine[machine_number] = cluster_number
-#     parts = list()
-#     for part in factory[machine_number]:
-#         if part in part_in_clusters[cluster_number]:
-#             parts.append(part)
-#     clusters[cluster_number][machine_number] = parts
-#     len_machine_in_cluster = len(part_in_clusters[cluster_number])
-#     n1_in = len(clusters[cluster_number][machine_number])
-#     n0_in = len_machine_in_cluster - n1_in
-#     # print(old_n0_in, old_n1_in, n0_in, n1_in)
-#     # print(machines_in_clusters)
-#     # print(part_in_clusters)
-#     # print(clusters_in_machine)
-#     # print(clusters_in_part)
-#     # print(old_n1_in, old_n0_in, n1_in, n0_in, full_n1_in, full_n0_in, full_n1)
-#     new_value, full_n1_in, full_n0_in = get_new_value(old_n1_in, old_n0_in, n1_in, n0_in, full_n1_in, full_n0_in,
-#                                                       full_n1)
-#     if new_value > old_value:
-#         return factory, clusters, machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part, full_n1_in, full_n0_in, new_value, machine_number, cluster_number
-#     else:
-#         return old_factory, old_clusters, old_machines_in_clusters, old_part_in_clusters, old_clusters_in_machine, old_clusters_in_part, olf_full_n1_in, old_full_n0_in, old_value, machine_number, cluster_number
+    return new_value, new_n1_in, new_n0_in
 
 
-def swap_parts():
-    pass
+def swap_machines(factory, clusters, machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part,
+                  machine_number, cluster_number):
+    machine_belonging = clusters_in_machine[machine_number]
+    machines_in_clusters[cluster_number].append(machine_number)
+    machines_in_clusters[machine_belonging].remove(machine_number)
+    clusters_in_machine[machine_number] = cluster_number
+    parts = list()
+    for part in factory[machine_number]:
+        if part in part_in_clusters[cluster_number]:
+            parts.append(part)
+    clusters[cluster_number][machine_number] = parts
+    return factory, clusters, machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part
+
+
+def calc_swap_parts(clusters,machines_in_clusters,clusters_in_part,part_number,cluster_number, n1_in,n0_in, n1):
+    part_belonging = clusters_in_part[part_number]
+    len_old_part_in_old_cluster = len(machines_in_clusters[part_belonging])
+    old_n1_in = len(clusters[part_belonging][part_number])
+    old_n0_in = len_old_part_in_old_cluster - old_n1_in
+    len_part_in_cluster = len(machines_in_clusters[cluster_number])
+    parts = list()
+    for part in factory_for_part[part_number]:
+        if part in machines_in_clusters[cluster_number]:
+            parts.append(part)
+    new_n1_in = len(parts)
+    new_n0_in = len_part_in_cluster - new_n1_in
+    new_value, new_n1_in, new_n0_in = get_new_value(old_n1_in, old_n0_in, new_n1_in, new_n0_in, n1_in, n0_in, n1)
+
+    return new_value, new_n1_in, new_n0_in
+
+def swap_parts(factory, clusters, machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part,
+                  part_number, cluster_number):
+    part_belonging = clusters_in_machine[part_number]
+    part_in_clusters[cluster_number].append(part_number)
+    part_in_clusters[part_belonging].remove(part_number)
+    clusters_in_part[part_number] = cluster_number
+    parts = list()
+    for part in factory[part_number]:
+        if part in part_in_clusters[cluster_number]:
+            parts.append(part)
+    clusters[cluster_number][part_number] = parts
+    return factory, clusters, machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part
 
 
 def get_machines_and_parts_from_file(path):
@@ -131,14 +129,15 @@ def get_machines_and_parts_from_file(path):
             factory.append([int(num) - 1 for num in f.readline().split()][1:])
     return factory, count_machine, count_part
 
-# 2  - max_count_clusters
 
+# 2  - max_count_clusters
+def generate_clusters_for_part(factory_for_part,clusters):
+    pass
 
 if __name__ == "__main__":
     factory, count_machine, count_part = get_machines_and_parts_from_file(
         "dataset/#1 - King and Nakornchai(1982)[Figure-1a] ")
     max_count_clusters = min(count_machine, count_part)
-    print(factory)
     factory_len = sum(map(len, factory))
     (clusters, machines_in_clusters,
      part_in_clusters, clusters_in_machine,
@@ -147,58 +146,86 @@ if __name__ == "__main__":
 
     value, n1_in, n0_in = get_value(clusters, machines_in_clusters, part_in_clusters, factory_len)
     print(value, n1_in, n0_in)
-    current_value = value
-    best_move_machine = 0
-    best_move_cluster = 0
-    # new_factory, new_clusters, new_machines_in_clusters, new_part_in_clusters, new_clusters_in_machine, new_clusters_in_part, new_n1_in, new_n0_in, new_value, new_best_move_machine, new_best_move_cluster = swap_machines(
-    #     factory, clusters, machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part,
-    #     4,
-    #     0, n1_in, n0_in, factory_len, current_value)
-    # print("NEW------$@$@$@$@$$@$@-------------")
-    # print(new_clusters)
-    # print(new_machines_in_clusters)
-    # print(new_part_in_clusters)
-    # print(new_best_move_machine, current_best_move_cluster)
-    # print(current_n1_in, current_n0_in)
-    # print(new_value)
-    # print("=----------@#KJKJKJKJKJKJKJ-----------------------")
-
-    for machine_number in range(count_machine):
-        for cluster_number in range(len(clusters)):
-            pass
-            # print("AMACH",machine_number,"CLSDATER",cluster_number)
-    #         new_factory, new_clusters, new_machines_in_clusters, new_part_in_clusters, new_clusters_in_machine, new_clusters_in_part, new_n1_in, new_n0_in, new_value, new_best_move_machine, new_best_move_cluster = swap_machines(
-    #             current_factory, current_clusters, current_machines_in_clusters, current_part_in_clusters,
-    #             current_clusters_in_machine, current_clusters_in_part, machine_number, cluster_number, current_n1_in,
-    #             current_n0_in, factory_len, current_value)
-    #         # print(clusters)
-    #         # print("NEW-------------------")
-    #         # print(new_clusters)
-    #         # print(new_machines_in_clusters)
-    #         # print(new_part_in_clusters)
-    #         # print(new_best_move_machine, current_best_move_cluster)
-    #         # print(current_n1_in, current_n0_in)
-    #         # print("=---------------------------------")
-    #
-    #         if new_value > value:
-    #             # print("NEw", new_clusters)
-    #             # print("Current", current_clusters)
-    #             # print("OLD", clusters)
-    #             current_factory, current_clusters, current_machines_in_clusters, current_part_in_clusters, current_clusters_in_machine, current_clusters_in_part, current_n1_in, current_n0_in, value, current_best_move_machine, current_best_move_cluster = new_factory, new_clusters, new_machines_in_clusters, new_part_in_clusters, new_clusters_in_machine, new_clusters_in_part, new_n1_in, new_n0_in, new_value, new_best_move_machine, new_best_move_cluster
-    #             # print(current_clusters)
-    #             # print(current_machines_in_clusters)
-    #             # print(current_part_in_clusters)
-    #             # print(current_best_move_machine, current_best_move_cluster)
-    #             # print(current_n1_in, current_n0_in)
-    #
-    # print(value)
+    best_move = [0, 0]
     print("factory", factory)
     print("clusters", clusters)
     print("machines_in_clusters", machines_in_clusters)
     print("part_in_clusters", part_in_clusters)
     print("clusters_in_machine", clusters_in_machine)
     print("clusters_in_part", clusters_in_part)
-    print("best_move_machine", "best_move_cluster", best_move_machine, best_move_cluster)
+    factory_for_part=[[] for i in range (count_part)]
+    for i in range(len(factory)):
+        for j in factory[i]:
+            factory_for_part[j].append(i)
+    print(factory_for_part)
+    clusters_for_part=[{} for i in range(len(clusters))]
+    print(clusters_for_part)
+    for i,num in enumerate(factory_for_part):
+        list_machine=list()
+        for j in num:
+            if clusters_in_machine[j]==clusters_in_part[i]:
+                print(i)
+                print(clusters_in_part[i])
+                list_machine.append(j)
+        if(list_machine):
+            clusters_for_part[clusters_in_part[i]][i]=list_machine
+    print(clusters_for_part)
+
+    changed = True
+    while changed:
+        changed = False
+        for machine_number in range(count_machine):
+            for cluster_number in range(len(clusters)):
+                machine_belonging = clusters_in_machine[machine_number]
+                if machine_belonging == cluster_number or len(machines_in_clusters[machine_belonging]) == 1:
+                    continue
+                new_value, new_n1_in, new_n0_in = calc_swap_machines(clusters=clusters,
+                                                                     part_in_clusters=part_in_clusters,
+                                                                     clusters_in_machine=clusters_in_machine,
+                                                                     machine_number=machine_number,
+                                                                     cluster_number=cluster_number, n1_in=n1_in,
+                                                                     n0_in=n0_in, n1=factory_len)
+                if new_value > value:
+                    best_move[0] = machine_number
+                    best_move[1] = cluster_number
+                    value = new_value
+                    n1_in = new_n1_in
+                    n0_in = new_n0_in
+                    changed = True
+        if changed:
+            factory, clusters, machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part = swap_machines(
+                factory, clusters, machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part,
+                best_move[0], best_move[1])
+        else:
+            for part_number in range(count_part):
+                for cluster_number in range(len(clusters)):
+                    part_belonging = clusters_in_part[part_number]
+                    if part_belonging == cluster_number or len(part_in_clusters[part_belonging]) == 1:
+                        continue
+                    new_value, new_n1_in, new_n0_in = calc_swap_parts(clusters,
+                                                                      machines_in_clusters,
+                                                                      clusters_in_part,
+                                                                      part_number,
+                                                                      cluster_number, n1_in,
+                                                                      n0_in, factory_len)
+                    if new_value > value:
+                        best_move[0] = part_number
+                        best_move[1] = cluster_number
+                        value = new_value
+                        n1_in = new_n1_in
+                        n0_in = new_n0_in
+                        changed = True
+            if changed:
+                factory, clusters, machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part = swap_parts(
+                    factory, clusters, machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part,
+                    best_move[0], best_move[1])
+    print("factory", factory)
+    print("clusters", clusters)
+    print("machines_in_clusters", machines_in_clusters)
+    print("part_in_clusters", part_in_clusters)
+    print("clusters_in_machine", clusters_in_machine)
+    print("clusters_in_part", clusters_in_part)
+    print(value)
 
 # [[2, 4, 5, 6], [1, 3], [1, 3, 7], [2, 4, 6], [1, 7]]
 #
