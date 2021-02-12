@@ -1,4 +1,5 @@
 from copy import deepcopy
+from random import random, randint
 
 
 def create_first_cluster(factory, count_machine, count_part, iter):
@@ -125,9 +126,12 @@ def divide_cluster(machines_in_clusters, part_in_clusters, clusters_in_machine, 
     old_n0_in = len_old - old_n1_in
 
     new_cl_id = len(clusters)
+    g_m=randint(1,len_m_cl-1)
+    g_p=randint(1,len_p_cl-1)
 
-    new_m_cl_left, new_m_cl_right = m_cl[:len_m_cl // 2], m_cl[len_m_cl // 2:]
-    new_p_cl_up, new_p_cl_down = p_cl[:len_p_cl // 2], p_cl[len_p_cl // 2:]
+
+    new_m_cl_left, new_m_cl_right = m_cl[:g_m], m_cl[g_m:]
+    new_p_cl_up, new_p_cl_down = p_cl[:g_p], p_cl[g_p:]
 
     machines_in_clusters[num_cluster_to_change] = new_m_cl_left
     part_in_clusters[num_cluster_to_change] = new_p_cl_up
@@ -378,7 +382,7 @@ if __name__ == "__main__":
 
     def main():
         factory, factory_for_part, count_machine, count_part = get_machines_and_parts_from_file(
-            "dataset/cfp/corm37.txt")
+            "dataset/cfp/carrie28.txt")
         max_count_clusters = min(count_machine, count_part)
         matrix = [[0 for j in range(count_part)] for i in range(count_machine)]
         for m_i, m in enumerate(factory):
@@ -386,101 +390,58 @@ if __name__ == "__main__":
                 matrix[m_i][p] = 1
         factory_len = sum(map(len, factory))
         super_value=0
-        for first_create_param in range(2, max_count_clusters + 1):
+        while super_value<0.4723:
+            for first_create_param in range(2, max_count_clusters + 1):
 
-            (clusters, machines_in_clusters,
-             part_in_clusters, clusters_in_machine,
-             clusters_in_part) = create_first_cluster(factory, count_machine, count_part,
-                                                      first_create_param)
+                (clusters, machines_in_clusters,
+                 part_in_clusters, clusters_in_machine,
+                 clusters_in_part) = create_first_cluster(factory, count_machine, count_part,
+                                                          first_create_param)
 
-            value, n1_in, n0_in = get_value(clusters, machines_in_clusters, part_in_clusters, factory_len)
+                value, n1_in, n0_in = get_value(clusters, machines_in_clusters, part_in_clusters, factory_len)
 
-            clusters_for_part = [{} for i in range(len(clusters))]
-            for i, num in enumerate(factory_for_part):
-                list_machine = list()
-                for j in num:
-                    if clusters_in_machine[j] == clusters_in_part[i]:
-                        list_machine.append(j)
-                if list_machine:
-                    clusters_for_part[clusters_in_part[i]][i] = list_machine
+                clusters_for_part = [{} for i in range(len(clusters))]
+                for i, num in enumerate(factory_for_part):
+                    list_machine = list()
+                    for j in num:
+                        if clusters_in_machine[j] == clusters_in_part[i]:
+                            list_machine.append(j)
+                    if list_machine:
+                        clusters_for_part[clusters_in_part[i]][i] = list_machine
 
-            clusters, clusters_for_part, \
-            machines_in_clusters, part_in_clusters, \
-            clusters_in_machine, clusters_in_part, \
-            n1_in, n0_in, value = vns(
-                factory, factory_for_part, clusters, clusters_for_part, machines_in_clusters, part_in_clusters,
-                clusters_in_machine, clusters_in_part, count_machine, count_part, n1_in, n0_in, factory_len, value)
-
-            r_clusters, r_clusters_for_part, \
-            r_machines_in_clusters, r_part_in_clusters, \
-            r_clusters_in_machine, r_clusters_in_part, \
-            r_n1_in, r_n0_in, r_value = \
                 clusters, clusters_for_part, \
                 machines_in_clusters, part_in_clusters, \
                 clusters_in_machine, clusters_in_part, \
-                n1_in, n0_in, value
+                n1_in, n0_in, value = vns(
+                    factory, factory_for_part, clusters, clusters_for_part, machines_in_clusters, part_in_clusters,
+                    clusters_in_machine, clusters_in_part, count_machine, count_part, n1_in, n0_in, factory_len, value)
 
-            ch = True
-            while ch:
-                ch = False
-                len_clf = len(clusters)
-                for i in range(len_clf):
-                    if len(machines_in_clusters[i]) > 1 and len(part_in_clusters[i]) > 1:
-                        d_machines_in_clusters, d_part_in_clusters, \
-                        d_clusters_in_machine, d_clusters_in_part, \
-                        d_clusters, d_clusters_for_part, \
-                        d_value, d_n1_in, d_n0_in = \
-                            divide_cluster(
-                                deepcopy(machines_in_clusters),
-                                deepcopy(part_in_clusters),
-                                deepcopy(clusters_in_machine),
-                                deepcopy(clusters_in_part),
-                                deepcopy(clusters),
-                                deepcopy(clusters_for_part), i, matrix, deepcopy(n1_in), deepcopy(n0_in), factory_len)
-                        d_clusters, d_clusters_for_part, \
-                        d_machines_in_clusters, d_part_in_clusters, \
-                        d_clusters_in_machine, d_clusters_in_part, \
-                        d_n1_in, d_n0_in, d_value = vns(
-                            factory, factory_for_part,
-                            d_clusters, d_clusters_for_part,
-                            d_machines_in_clusters, d_part_in_clusters,
-                            d_clusters_in_machine, d_clusters_in_part,
-                            count_machine, count_part,
-                            d_n1_in, d_n0_in, factory_len, d_value)
-                        if d_value > value:
-                            r_clusters, r_clusters_for_part, \
-                            r_machines_in_clusters, r_part_in_clusters, \
-                            r_clusters_in_machine, r_clusters_in_part, \
-                            r_n1_in, r_n0_in, r_value = \
-                                deepcopy(d_clusters), deepcopy(d_clusters_for_part), \
-                                deepcopy(d_machines_in_clusters), deepcopy(d_part_in_clusters), \
-                                deepcopy(d_clusters_in_machine), deepcopy(d_clusters_in_part), \
-                                deepcopy(d_n1_in), deepcopy(d_n0_in), deepcopy(d_value)
-                if r_value > value:
+                r_clusters, r_clusters_for_part, \
+                r_machines_in_clusters, r_part_in_clusters, \
+                r_clusters_in_machine, r_clusters_in_part, \
+                r_n1_in, r_n0_in, r_value = \
                     clusters, clusters_for_part, \
                     machines_in_clusters, part_in_clusters, \
                     clusters_in_machine, clusters_in_part, \
-                    n1_in, n0_in, value = \
-                        r_clusters, r_clusters_for_part, \
-                        r_machines_in_clusters, r_part_in_clusters, \
-                        r_clusters_in_machine, r_clusters_in_part, \
-                        r_n1_in, r_n0_in, r_value
-                    ch = True
-                else:
-                    len_clf=len(clusters)
-                    for i in range(len_clf-1):
-                        for j in range(i+1,len_clf):
+                    n1_in, n0_in, value
+
+                ch = True
+                while ch:
+                    ch = False
+                    len_clf = len(clusters)
+                    for i in range(len_clf):
+                        if len(machines_in_clusters[i]) > 1 and len(part_in_clusters[i]) > 1:
                             d_machines_in_clusters, d_part_in_clusters, \
                             d_clusters_in_machine, d_clusters_in_part, \
                             d_clusters, d_clusters_for_part, \
-                            d_value, d_n1_in, d_n0_in = merge_cluster(deepcopy(machines_in_clusters),
-                                                                      deepcopy(part_in_clusters),
-                                                                      deepcopy(clusters_in_machine),
-                                                                      deepcopy(clusters_in_part),
-                                                                      deepcopy(clusters),
-                                                                      deepcopy(clusters_for_part), i, j, matrix, deepcopy(n1_in),
-                                                                      deepcopy(n0_in), factory_len)
-
+                            d_value, d_n1_in, d_n0_in = \
+                                divide_cluster(
+                                    deepcopy(machines_in_clusters),
+                                    deepcopy(part_in_clusters),
+                                    deepcopy(clusters_in_machine),
+                                    deepcopy(clusters_in_part),
+                                    deepcopy(clusters),
+                                    deepcopy(clusters_for_part), i, matrix, deepcopy(n1_in), deepcopy(n0_in), factory_len)
                             d_clusters, d_clusters_for_part, \
                             d_machines_in_clusters, d_part_in_clusters, \
                             d_clusters_in_machine, d_clusters_in_part, \
@@ -500,23 +461,67 @@ if __name__ == "__main__":
                                     deepcopy(d_machines_in_clusters), deepcopy(d_part_in_clusters), \
                                     deepcopy(d_clusters_in_machine), deepcopy(d_clusters_in_part), \
                                     deepcopy(d_n1_in), deepcopy(d_n0_in), deepcopy(d_value)
+                    if r_value > value:
+                        clusters, clusters_for_part, \
+                        machines_in_clusters, part_in_clusters, \
+                        clusters_in_machine, clusters_in_part, \
+                        n1_in, n0_in, value = \
+                            r_clusters, r_clusters_for_part, \
+                            r_machines_in_clusters, r_part_in_clusters, \
+                            r_clusters_in_machine, r_clusters_in_part, \
+                            r_n1_in, r_n0_in, r_value
+                        ch = True
+                    else:
+                        len_clf=len(clusters)
+                        for i in range(len_clf-1):
+                            for j in range(i+1,len_clf):
+                                d_machines_in_clusters, d_part_in_clusters, \
+                                d_clusters_in_machine, d_clusters_in_part, \
+                                d_clusters, d_clusters_for_part, \
+                                d_value, d_n1_in, d_n0_in = merge_cluster(deepcopy(machines_in_clusters),
+                                                                          deepcopy(part_in_clusters),
+                                                                          deepcopy(clusters_in_machine),
+                                                                          deepcopy(clusters_in_part),
+                                                                          deepcopy(clusters),
+                                                                          deepcopy(clusters_for_part), i, j, matrix, deepcopy(n1_in),
+                                                                          deepcopy(n0_in), factory_len)
 
-                if r_value > value:
-                    clusters, clusters_for_part, \
-                    machines_in_clusters, part_in_clusters, \
-                    clusters_in_machine, clusters_in_part, \
-                    n1_in, n0_in, value = \
-                        r_clusters, r_clusters_for_part, \
-                        r_machines_in_clusters, r_part_in_clusters, \
-                        r_clusters_in_machine, r_clusters_in_part, \
-                        r_n1_in, r_n0_in, r_value
+                                d_clusters, d_clusters_for_part, \
+                                d_machines_in_clusters, d_part_in_clusters, \
+                                d_clusters_in_machine, d_clusters_in_part, \
+                                d_n1_in, d_n0_in, d_value = vns(
+                                    factory, factory_for_part,
+                                    d_clusters, d_clusters_for_part,
+                                    d_machines_in_clusters, d_part_in_clusters,
+                                    d_clusters_in_machine, d_clusters_in_part,
+                                    count_machine, count_part,
+                                    d_n1_in, d_n0_in, factory_len, d_value)
+                                if d_value > value:
+                                    r_clusters, r_clusters_for_part, \
+                                    r_machines_in_clusters, r_part_in_clusters, \
+                                    r_clusters_in_machine, r_clusters_in_part, \
+                                    r_n1_in, r_n0_in, r_value = \
+                                        deepcopy(d_clusters), deepcopy(d_clusters_for_part), \
+                                        deepcopy(d_machines_in_clusters), deepcopy(d_part_in_clusters), \
+                                        deepcopy(d_clusters_in_machine), deepcopy(d_clusters_in_part), \
+                                        deepcopy(d_n1_in), deepcopy(d_n0_in), deepcopy(d_value)
 
-                    ch = True
-            if(value>super_value):
-                print(" ".join(map(str,clusters_in_machine)))
-                print(" ".join(map(str,clusters_in_part)))
-                print(value)
-                super_value=value
+                    if r_value > value:
+                        clusters, clusters_for_part, \
+                        machines_in_clusters, part_in_clusters, \
+                        clusters_in_machine, clusters_in_part, \
+                        n1_in, n0_in, value = \
+                            r_clusters, r_clusters_for_part, \
+                            r_machines_in_clusters, r_part_in_clusters, \
+                            r_clusters_in_machine, r_clusters_in_part, \
+                            r_n1_in, r_n0_in, r_value
+
+                        ch = True
+                if(value>super_value):
+                    print(" ".join(map(str,clusters_in_machine)))
+                    print(" ".join(map(str,clusters_in_part)))
+                    print(value)
+                    super_value=value
 
     main()
 
