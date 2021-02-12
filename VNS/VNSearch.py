@@ -89,22 +89,33 @@ def swap_machines(factory, clusters,clusters_for_part, machines_in_clusters, par
     for part in factory[machine_number]:
         if part in part_in_clusters[cluster_number]:
             parts.append(part)
-        if part in part_in_clusters[machine_belonging]:
-            try:
-                print("--------------")
-                print(clusters_for_part,machine_belonging,part,machine_number)
-                print(part_in_clusters,cluster_number)
-                print(machines_in_clusters)
-                print('------------')
-                del clusters_for_part[machine_belonging][part]
-            except KeyError:
-                pass
             try:
                 clusters_for_part[cluster_number][part].append(machine_number)
             except KeyError:
+                print("=======================")
+                print(clusters_for_part,cluster_number,part,machine_number)
                 clusters_for_part[cluster_number][part]=[machine_number]
                 print(clusters_for_part,cluster_number,part,machine_number)
+                print("=======================")
+        if part in part_in_clusters[machine_belonging]:
+            try:
+                print("--------------")
+                print(clusters)
+                print(clusters_for_part,machine_belonging,part,machine_number)
+                print(part_in_clusters,cluster_number)
+                print(machines_in_clusters)
+                print('$$$$$$$$$')
+
+                clusters_for_part[machine_belonging][part].remove(machine_number)
+                print(clusters_for_part,machine_belonging,part,machine_number)
+                print('------------')
+
+
+            except KeyError:
+                pass
+
     print('DD',clusters)
+    print(parts)
     clusters[cluster_number][machine_number] = parts
     try:
         del clusters[machine_belonging][machine_number]
@@ -148,18 +159,19 @@ def swap_parts(factory_for_part, clusters,clusters_for_part, machines_in_cluster
     for machine in factory_for_part[part_number]:
         if machine in machines_in_clusters[cluster_number]:
             machines.append(machine)
-        if machine in machines_in_clusters[part_belonging]:
-            try:
-                del clusters[part_belonging][machine]
-            except KeyError:
-                pass
             try:
                 print("=----------------------")
-                print(clusters,cluster_number,machine,part_number)
+                print(clusters, cluster_number, machine, part_number)
                 clusters[cluster_number][machine].append(part_number)
-                print(clusters,cluster_number,machine,part_number)
+                print(clusters, cluster_number, machine, part_number)
             except KeyError:
                 clusters[cluster_number][machine] = [part_number]
+        if machine in machines_in_clusters[part_belonging]:
+            try:
+                clusters[part_belonging][machine].remove(part_number)
+            except KeyError:
+                pass
+
     clusters_for_part[cluster_number][part_number] = machines
     try:
         del clusters_for_part[part_belonging][part_number]
@@ -268,6 +280,7 @@ if __name__ == "__main__":
                             best_move[1] = cluster_number
                             value = new_value
                             print("NEW VALUE", value)
+                            print("SUPERT")
                             # print("NNNN",n1_in,n0_in)
                             changed = True
                 if changed:
@@ -276,6 +289,8 @@ if __name__ == "__main__":
                         best_move[0], best_move[1])
                     n1_in = new_n1_in
                     n0_in = new_n0_in
+                else:
+                    print("END")
         print("factory", factory)
         print("factory_for_part",factory_for_part)
         print("clusters", clusters)
