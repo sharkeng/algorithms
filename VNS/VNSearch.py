@@ -58,7 +58,7 @@ def get_new_value(old_n1_in, old_n0_in, new_n1_in, new_n0_in, n1_in, n0_in, n1):
 def merge_cluster(machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part, clusters,
                   clusters_for_part, num_cl_1, num_cl_2, matrix, n1_in, n0_in, n1):
     len_old = (len(machines_in_clusters[num_cl_1]) * len(part_in_clusters[num_cl_1])) + (
-                len(machines_in_clusters[num_cl_2]) * len(part_in_clusters[num_cl_2]))
+            len(machines_in_clusters[num_cl_2]) * len(part_in_clusters[num_cl_2]))
 
     old_n1_in = sum(map(len, clusters[num_cl_1].values())) + sum(map(len, clusters[num_cl_2].values()))
     old_n0_in = len_old - old_n1_in
@@ -93,20 +93,17 @@ def merge_cluster(machines_in_clusters, part_in_clusters, clusters_in_machine, c
     machines_in_clusters[num_cl_1] = machines
     part_in_clusters[num_cl_1] = parts
 
-
     for i, x in enumerate(clusters_in_machine):
         if x > num_cl_2:
-            clusters_in_machine[i]-=1
+            clusters_in_machine[i] -= 1
         if x == num_cl_2:
-            clusters_in_machine[i]=num_cl_1
+            clusters_in_machine[i] = num_cl_1
 
     for i, x in enumerate(clusters_in_part):
         if x > num_cl_2:
-            clusters_in_part[i]-=1
-        if x==num_cl_2:
-            clusters_in_part[i]=num_cl_1
-
-
+            clusters_in_part[i] -= 1
+        if x == num_cl_2:
+            clusters_in_part[i] = num_cl_1
 
     value, n1_in, n0_in = get_new_value(old_n1_in, old_n0_in, new_n1_in, new_n0_in, n1_in, n0_in, n1)
     return machines_in_clusters, part_in_clusters, clusters_in_machine, clusters_in_part, clusters, clusters_for_part, value, n1_in, n0_in
@@ -119,16 +116,14 @@ def divide_cluster(machines_in_clusters, part_in_clusters, clusters_in_machine, 
     len_p_cl = len(p_cl)
     len_m_cl = len(m_cl)
 
-
     len_old = len_m_cl * len_p_cl
     old_n1_in = sum(map(len, clusters[num_cluster_to_change].values()))
 
     old_n0_in = len_old - old_n1_in
 
     new_cl_id = len(clusters)
-    g_m=randint(1,len_m_cl-1)
-    g_p=randint(1,len_p_cl-1)
-
+    g_m = randint(1, len_m_cl - 1)
+    g_p = randint(1, len_p_cl - 1)
 
     new_m_cl_left, new_m_cl_right = m_cl[:g_m], m_cl[g_m:]
     new_p_cl_up, new_p_cl_down = p_cl[:g_p], p_cl[g_p:]
@@ -160,7 +155,6 @@ def divide_cluster(machines_in_clusters, part_in_clusters, clusters_in_machine, 
         if parts:
             clusters[num_cluster_to_change].update({m: parts})
     clusters_for_part[num_cluster_to_change].update(cl)
-
 
     parts = []
     cl = {}
@@ -329,8 +323,8 @@ def vns(factory, factory_for_part, clusters, clusters_for_part, machines_in_clus
                     best_move[0] = machine_number
                     best_move[1] = cluster_number
                     value = new_value
-                    nice_n1_in=new_n1_in
-                    nice_n0_in=new_n0_in
+                    nice_n1_in = new_n1_in
+                    nice_n0_in = new_n0_in
                     changed = True
         if changed:
             n1_in = nice_n1_in
@@ -344,7 +338,6 @@ def vns(factory, factory_for_part, clusters, clusters_for_part, machines_in_clus
 
 
         else:
-
 
             for part_number in range(count_part):
                 for cluster_number in range(len(clusters_for_part)):
@@ -382,17 +375,16 @@ if __name__ == "__main__":
 
     def main():
         factory, factory_for_part, count_machine, count_part = get_machines_and_parts_from_file(
-            "dataset/cfp/carrie28.txt")
+            "dataset/cfp/corm37.txt")
         max_count_clusters = min(count_machine, count_part)
         matrix = [[0 for j in range(count_part)] for i in range(count_machine)]
         for m_i, m in enumerate(factory):
             for p in m:
                 matrix[m_i][p] = 1
         factory_len = sum(map(len, factory))
-        super_value=0
-        while super_value<0.4723:
-            for first_create_param in range(2, max_count_clusters + 1):
-
+        super_value = 0
+        while super_value < 0.7000:
+            for first_create_param in range(2, 6):
                 (clusters, machines_in_clusters,
                  part_in_clusters, clusters_in_machine,
                  clusters_in_part) = create_first_cluster(factory, count_machine, count_part,
@@ -424,12 +416,16 @@ if __name__ == "__main__":
                     machines_in_clusters, part_in_clusters, \
                     clusters_in_machine, clusters_in_part, \
                     n1_in, n0_in, value
-
-                ch = True
-                while ch:
-                    ch = False
-                    len_clf = len(clusters)
-                    for i in range(len_clf):
+                cag = 14
+                while (cag == 14):
+                    cag = 10
+                    ch = True
+                    while ch:
+                        ch = False
+                        len_clf = len(clusters)
+                        if len_clf>3:
+                            len_clf=3
+                        i = randint(0, len_clf-1)
                         if len(machines_in_clusters[i]) > 1 and len(part_in_clusters[i]) > 1:
                             d_machines_in_clusters, d_part_in_clusters, \
                             d_clusters_in_machine, d_clusters_in_part, \
@@ -441,7 +437,8 @@ if __name__ == "__main__":
                                     deepcopy(clusters_in_machine),
                                     deepcopy(clusters_in_part),
                                     deepcopy(clusters),
-                                    deepcopy(clusters_for_part), i, matrix, deepcopy(n1_in), deepcopy(n0_in), factory_len)
+                                    deepcopy(clusters_for_part), i, matrix, deepcopy(n1_in), deepcopy(n0_in),
+                                    factory_len)
                             d_clusters, d_clusters_for_part, \
                             d_machines_in_clusters, d_part_in_clusters, \
                             d_clusters_in_machine, d_clusters_in_part, \
@@ -472,9 +469,9 @@ if __name__ == "__main__":
                             r_n1_in, r_n0_in, r_value
                         ch = True
                     else:
-                        len_clf=len(clusters)
-                        for i in range(len_clf-1):
-                            for j in range(i+1,len_clf):
+                        len_clf = len(clusters)
+                        for i in range(len_clf - 1):
+                            for j in range(i + 1, len_clf):
                                 d_machines_in_clusters, d_part_in_clusters, \
                                 d_clusters_in_machine, d_clusters_in_part, \
                                 d_clusters, d_clusters_for_part, \
@@ -483,7 +480,8 @@ if __name__ == "__main__":
                                                                           deepcopy(clusters_in_machine),
                                                                           deepcopy(clusters_in_part),
                                                                           deepcopy(clusters),
-                                                                          deepcopy(clusters_for_part), i, j, matrix, deepcopy(n1_in),
+                                                                          deepcopy(clusters_for_part), i, j, matrix,
+                                                                          deepcopy(n1_in),
                                                                           deepcopy(n0_in), factory_len)
 
                                 d_clusters, d_clusters_for_part, \
@@ -517,13 +515,15 @@ if __name__ == "__main__":
                             r_n1_in, r_n0_in, r_value
 
                         ch = True
-                if(value>super_value):
-                    print(" ".join(map(str,clusters_in_machine)))
-                    print(" ".join(map(str,clusters_in_part)))
+                if (super_value >= 0.6050):
+                    cag = 14
+                if (value > super_value):
+                    print(" ".join(map(str, clusters_in_machine)))
+                    print(" ".join(map(str, clusters_in_part)))
                     print(value)
-                    super_value=value
+                    super_value = value
 
-    main()
+main()
 
 # [[2, 4, 5, 6], [1, 3], [1, 3, 7], [2, 4, 6], [1, 7]]
 #
